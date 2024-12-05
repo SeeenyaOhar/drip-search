@@ -1,5 +1,5 @@
 from retriever import Retriever
 
 
-class BM25(Retriever):
+class KeywordRetriever(Retriever):
     pass

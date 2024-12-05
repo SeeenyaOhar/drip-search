@@ -13,8 +13,10 @@ class Chat:
         self.model = model
         self.docs = docs
     
-    def answer_question(self, question: str) -> str:
-        relevant_docs = self.retriever.get_rel_docs(n_docs=self.__rel_docs_n)
+    def answer_question(self, 
+                        question: str) -> str:
+        relevant_docs = self.retriever.get_rel_docs(question, 
+                                                    n_docs=self.__rel_docs_n)
         answer = self.model.prompt(question, *relevant_docs)
         
         return answer

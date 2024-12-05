@@ -1,3 +1,5 @@
 class LargeLanguageModel:
-    def prompt(self, message, *context):
+    def prompt(self, 
+               message, 
+               *context):
         pass
