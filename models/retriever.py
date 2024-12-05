@@ -1,4 +1,4 @@
-from document import Document
+from models.document import Document
 
 
 class Retriever:

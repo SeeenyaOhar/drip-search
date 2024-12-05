@@ -146,4 +146,4 @@ cython_debug/
 
 # PROJECT SPECIFIC
 data/*
-data/*/!*.txt
+!data/*/*.txt
