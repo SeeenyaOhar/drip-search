@@ -16,16 +16,13 @@ if __name__ == '__main__':
     for item in sorted(os.listdir('data')):
         file_path = os.path.join('data', item)
         
-        # Check if it's a .txt file
         if os.path.isfile(file_path) and item.endswith('.txt'):
             # Open the .txt file and read the content
             with open(file_path, 'r') as file:
                 content = file.read()
-
-            # Create a Document object (adjust based on SemanticRetriever's requirements)
+            
             document = Document(content)
             
-            # Chunk the document into smaller parts and add them to the documents list
             chunks = chunk_documents(document, chunk_size=500)  # Adjust chunk_size as needed
             documents.extend(chunks)  # Add the chunks to the documents list
     

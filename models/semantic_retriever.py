@@ -3,7 +3,8 @@ from models.document import Document
 from models.retriever import Retriever
 
 class SemanticRetriever(Retriever):
-    def __init__(self, model_name: str = 'all-mpnet-base-v2'):
+    def __init__(self, 
+                 model_name: str = 'all-mpnet-base-v2'):
         """
         Initializes the SemanticRetriever with a SentenceTransformer model.
         :param model_name: Pre-trained model name for SentenceTransformer.
