@@ -1,7 +1,9 @@
+import logging.handlers
 from models.document import Document
 from models.groqllm import GroqModel
 from models.semantic_retriever import SemanticRetriever
 import os
+import logging
 
 def chunk_documents(document, chunk_size=500):
     """
@@ -11,8 +13,14 @@ def chunk_documents(document, chunk_size=500):
     return [Document(content[i:i + chunk_size]) for i in range(0, len(content), chunk_size)]
 
 if __name__ == '__main__':
+    logging.basicConfig(
+                    level=logging.DEBUG,  # Logs everything from DEBUG level and above
+                    format='%(asctime)s - %(levelname)s - %(message)s',
+                    handlers=[logging.StreamHandler(), logging.FileHandler('logs/app.log', mode='w')])
+    logging.info('[main] Starting load_dotenv')
     from dotenv import load_dotenv
     load_dotenv()
+    logging.info('[main] Finished os_dotenv')
     retriever = SemanticRetriever()
     documents = []
     
@@ -28,7 +36,9 @@ if __name__ == '__main__':
             
             chunks = chunk_documents(document, chunk_size=500)  # Adjust chunk_size as needed
             documents.extend(chunks)  # Add the chunks to the documents list
+    logging.info(f'[main] Chunked the documents, documents_len={len(documents)}')
     groqllm = GroqModel()
     test_prompt = 'What are the total sales of Carhartt in 1990?'
     context = retriever.get_rel_docs(test_prompt, documents, n_docs=3)
-    print(groqllm.prompt(test_prompt, context))
+    logging.info(f'[main] Found rel docs, context_len={len(context)}')
+    logging.info(f'[main] --- GROQ LLM Answer: {groqllm.prompt(test_prompt, context)}')
