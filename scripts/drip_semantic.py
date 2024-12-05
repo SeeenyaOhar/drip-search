@@ -1,4 +1,5 @@
 from models.document import Document
+from models.groqllm import GroqModel
 from models.semantic_retriever import SemanticRetriever
 import os
 
@@ -10,6 +11,8 @@ def chunk_documents(document, chunk_size=500):
     return [Document(content[i:i + chunk_size]) for i in range(0, len(content), chunk_size)]
 
 if __name__ == '__main__':
+    from dotenv import load_dotenv
+    load_dotenv()
     retriever = SemanticRetriever()
     documents = []
     
@@ -25,6 +28,7 @@ if __name__ == '__main__':
             
             chunks = chunk_documents(document, chunk_size=500)  # Adjust chunk_size as needed
             documents.extend(chunks)  # Add the chunks to the documents list
-    
-    test_prompt = 'What is Carhartt?'
-    print(retriever.get_rel_docs(test_prompt, documents, n_docs=3))
+    groqllm = GroqModel()
+    test_prompt = 'What are the total sales of Carhartt in 1990?'
+    context = retriever.get_rel_docs(test_prompt, documents, n_docs=3)
+    print(groqllm.prompt(test_prompt, context))
