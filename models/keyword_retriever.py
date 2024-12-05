@@ -1,4 +1,4 @@
-from retriever import Retriever
+from models.retriever import Retriever
 
 
 class KeywordRetriever(Retriever):

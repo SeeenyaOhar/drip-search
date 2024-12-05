@@ -20,7 +20,7 @@ if __name__ == '__main__':
             # Open the .txt file and read the content
             with open(file_path, 'r') as file:
                 content = file.read()
-
+            
             document = Document(content)
             
             chunks = chunk_documents(document, chunk_size=500)  # Adjust chunk_size as needed
