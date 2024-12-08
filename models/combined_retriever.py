@@ -16,18 +16,15 @@ class CombinedRetriever(Retriever):
             return self.__keyword.get_rel_docs(prompt, n_docs)
         elif not self.__keyword:
             return self.__semantic.get_rel_docs(prompt, n_docs)
+
         semantic_scores = self.__semantic.get_scores(prompt, n_docs)
         keyword_scores = self.__keyword.get_scores(prompt, n_docs)
-        # Apply weights and combine
+
         combined_scores = 0.7 * semantic_scores + 0.3 * keyword_scores
-
-        # Sort indices in descending order of combined scores
+        
         sorted_indices = np.argsort(-combined_scores)
-
-        # Take top n_docs
         top_indices = sorted_indices[:n_docs]
 
-        # Return the corresponding top documents
         return [self.__documents[idx] for idx in top_indices]
 
     def set_docs(self, docs):

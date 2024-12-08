@@ -6,18 +6,18 @@ import numpy as np
 import spacy
 
 class KeywordRetriever(Retriever):
-    def __init__(self, logger: logging.Logger = logging.getLogger(), docs: [str] = None) -> None:
+    def __init__(self, logger: logging.Logger = logging.getLogger(), docs: list[Document] = None) -> None:
         self.__docs = docs
         self.__spacy_nlp = spacy.blank("en")
         self.logger = logger
 
-    def tokenize(self, text: str) -> list[str]:
+    def tokenize(self, text: str):
         """Tokenize string with SpaCy. """
 
         tokens = self.__spacy_nlp.tokenizer(text)
         return [str(token).lower() for token in tokens]
 
-    def tokenize_docs(self, docs):
+    def tokenize_docs(self, docs: list[Document]):
         return [self.tokenize(doc.content) for doc in docs]
 
     def get_scores(self,

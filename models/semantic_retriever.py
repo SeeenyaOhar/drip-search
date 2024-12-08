@@ -27,7 +27,8 @@ class SemanticRetriever(Retriever):
     
     def get_scores(self,
                      prompt: str, 
-                     n_docs=10) -> np.ndarray:
+                     n_docs=10,
+                     rerank=False) -> np.ndarray:
         """
         Retrieves the most relevant documents based on semantic similarity to the prompt.
         
@@ -37,27 +38,24 @@ class SemanticRetriever(Retriever):
         :return: A list of top-N relevant Document objects.
         """
         if len(self.__docs) == 0:
-            return []
-
+            return np.array([])
+            
         if self.__docs_embeddings is None:
             self.__docs_embeddings = self.__precalc_docs(self.__docs)
         
         prompt_embedding = self.model.encode(prompt, convert_to_tensor=True)
         
-        # [0.1, 0.02, 0.5]
         similarities = self.model.similarity(prompt_embedding, self.__docs_embeddings)[0]
+        
         return similarities.cpu().numpy()
 
     def get_rel_docs(self,
                         prompt: str,
                         n_docs=10) -> list[Document]:
-        # Sort indices in descending order of combined scores
         sorted_indices = np.argsort(-self.get_scores(prompt, n_docs))
 
-        # Take top n_docs
         top_indices = sorted_indices[:n_docs]
 
-        # Return the corresponding top documents
         return [self.__docs[idx] for idx in top_indices]
 
     def __precalc_docs(self, docs):
