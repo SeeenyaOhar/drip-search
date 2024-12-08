@@ -9,9 +9,9 @@ from models.chunker import DefaultChunker
 from models.combined_retriever import CombinedRetriever
 from models.groqllm import GroqModel
 from models.keyword_retriever import KeywordRetriever
+from models.reranker import CrossEncoderReranker
 from models.semantic_retriever import SemanticRetriever
 from models.document import Document
-from models.retriever import Retriever
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -49,11 +49,12 @@ def chat_config() -> dict:
                                                          logger=logger,
                                                          precalc=True) if (retriever_mode == "combined") or (retriever_mode == "semantic") else None,
                                        KeywordRetriever(logger=logger, docs=docs) if (retriever_mode == "combined") or (retriever_mode == "keyword") else None),
-        "llm": GroqModel(),
+        "llm": GroqModel(logger=logger),
         "docs": docs,
         "chunker": DefaultChunker(logger=logger, 
                                   save_on_chunk=True,
                                   chunk_save_dir=CHUNK_DIR),
+        "reranker": CrossEncoderReranker(logger=logger),
         "logger": logger,
         "prechunk": True
     }
@@ -63,7 +64,6 @@ if 'chat' not in st.session_state:
     st.session_state['chat'] = Chat(**chat_config())
 st.title("Drip Chat")
 
-# Add active retriever mode below the search bar
 if retriever_mode := os.environ.get("RETRIEVER_MODE"):
     st.markdown(f"**Retriever Mode:** {retriever_mode.capitalize()}")
 else:

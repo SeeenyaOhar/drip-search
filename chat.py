@@ -3,11 +3,13 @@ import logging
 from models.chunker import Chunker
 from models.document import Document
 from models.llm import LargeLanguageModel
+from models.reranker import Reranker
 from models.retriever import Retriever
 
 
 class Chat:
-    __rel_docs_n = 3
+    __retr_docs_n = 50
+    __rerank_docs_n = 5
     __desired_chunk_size = 300
     __max_chunk_size = 400
     def __init__(self, 
@@ -15,12 +17,14 @@ class Chat:
                  llm: LargeLanguageModel,
                  docs: list[Document],
                  chunker: Chunker,
+                 reranker: Reranker,
                  logger: logging.Logger = logging.getLogger(__file__),
                  prechunk=False):
         self.retriever = retriever
         self.llm = llm
         self.docs = docs
         self.chunker = chunker
+        self.reranker = reranker
         self.logger = logger
         if prechunk:
             self.__chunked_docs = self.__prechunk() 
@@ -43,7 +47,10 @@ class Chat:
             self.__chunked_docs = self.__prechunk()
             self.retriever.set_docs(self.__chunked_docs)
         relevant_docs = self.retriever.get_rel_docs(question, 
-                                                    n_docs=self.__rel_docs_n)
-        answer = self.llm.prompt(question, *relevant_docs)
+                                                    n_docs=self.__retr_docs_n)
+        reranked_docs = self.reranker.rerank(question, 
+                                             relevant_docs,
+                                             n_docs=self.__rerank_docs_n)
+        answer = self.llm.prompt(question, *reranked_docs)
         
         return answer

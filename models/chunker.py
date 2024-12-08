@@ -25,7 +25,11 @@ class DefaultChunker(Chunker):
             raise ValueError("chunk_save_dir must be specified if save_on_chunk is True")
         if chunk_save_dir:
             os.makedirs(chunk_save_dir, exist_ok=True)
-    
+            
+    def __get_chunk_id(self, 
+                       doc: Document, 
+                       chunk_n: int):
+        return f"{doc.id}-{chunk_n}"
     
     def __save_chunk(self, original_doc: Document, chunks: list[Document]):
         """
@@ -57,7 +61,7 @@ class DefaultChunker(Chunker):
             chunk_data = json.load(file)
         
         self.logger.debug(f"[__retrieve_chunks] - Retrieved {len(chunk_data)} chunks for doc_id={doc_id}")
-        return [Document(content=chunk) for chunk in chunk_data]
+        return [Document(content=chunk, id=self.__get_chunk_id(original_doc, i)) for i,chunk in enumerate(chunk_data)]
     
     def __is_saved(self, doc: Document) -> bool:
         """
@@ -81,15 +85,18 @@ class DefaultChunker(Chunker):
         chunks = []
         
         start = 0
+        chunk_n = 0
         while start < len(content):
             chunk_end = min(start + desired_chunk_size, len(content))
             if chunk_end - start > max_chunk_size:
                 chunk_end = start + max_chunk_size
 
-            chunk = Document(content[start:chunk_end])
+            chunk = Document(content=content[start:chunk_end],
+                             id=self.__get_chunk_id(doc, chunk_n))
             chunks.append(chunk)
             
             start = chunk_end
+            chunk_n += 1
         
         if not self.__is_saved(doc) and self.save_on_chunk:
             self.__save_chunk(doc, chunks)

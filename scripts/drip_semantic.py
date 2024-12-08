@@ -14,7 +14,7 @@ def chunk_documents(document, chunk_size=500):
 
 if __name__ == '__main__':
     logging.basicConfig(
-                    level=logging.DEBUG,  # Logs everything from DEBUG level and above
+                    level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s',
                     handlers=[logging.StreamHandler(), logging.FileHandler('logs/app.log', mode='w')])
     logging.info('[main] Starting load_dotenv')
@@ -28,14 +28,13 @@ if __name__ == '__main__':
         file_path = os.path.join('data', item)
         
         if os.path.isfile(file_path) and item.endswith('.txt'):
-            # Open the .txt file and read the content
             with open(file_path, 'r') as file:
                 content = file.read()
             
             document = Document(content)
             
-            chunks = chunk_documents(document, chunk_size=500)  # Adjust chunk_size as needed
-            documents.extend(chunks)  # Add the chunks to the documents list
+            chunks = chunk_documents(document, chunk_size=500)
+            documents.extend(chunks) 
     logging.info(f'[main] Chunked the documents, documents_len={len(documents)}')
     groqllm = GroqModel()
     test_prompt = 'What are the total sales of Carhartt in 1990?'
