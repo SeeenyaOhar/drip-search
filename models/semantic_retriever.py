@@ -3,6 +3,7 @@ from sentence_transformers import SentenceTransformer, util
 
 from models.document import Document
 from models.retriever import Retriever
+import numpy as np
 
 class SemanticRetriever(Retriever):
     def __init__(self, 
@@ -19,14 +20,14 @@ class SemanticRetriever(Retriever):
         self.logger = logger
         self.__docs_embeddings = self.__precalc_docs(docs) if precalc else None
         self.__precalc = precalc
-        
+
     def set_docs(self, docs):
         self.__docs = docs
         self.__docs_embeddings = self.__precalc_docs(docs) if self.__precalc else None
     
-    def get_rel_docs(self, 
+    def get_scores(self,
                      prompt: str, 
-                     n_docs=10) -> list[Document]:
+                     n_docs=10) -> np.ndarray:
         """
         Retrieves the most relevant documents based on semantic similarity to the prompt.
         
@@ -43,14 +44,22 @@ class SemanticRetriever(Retriever):
         
         prompt_embedding = self.model.encode(prompt, convert_to_tensor=True)
         
+        # [0.1, 0.02, 0.5]
         similarities = self.model.similarity(prompt_embedding, self.__docs_embeddings)[0]
-        top_indices = similarities.topk(k=min(n_docs, len(self.__docs))).indices
-        
-        rel_docs = [self.__docs[idx] for idx in top_indices.tolist()]
-        self.logger.info(f"[SemanticRetriever.get_rel_docs] prompt={prompt} docs_n={len(self.__docs)} rel_docs_n={len(rel_docs)} rel_docs_total_chars={sum([len(doc.content) for doc in rel_docs])}")
-        
-        return rel_docs
-    
+        return similarities.cpu().numpy()
+
+    def get_rel_docs(self,
+                        prompt: str,
+                        n_docs=10) -> list[Document]:
+        # Sort indices in descending order of combined scores
+        sorted_indices = np.argsort(-self.get_scores(prompt, n_docs))
+
+        # Take top n_docs
+        top_indices = sorted_indices[:n_docs]
+
+        # Return the corresponding top documents
+        return [self.__docs[idx] for idx in top_indices]
+
     def __precalc_docs(self, docs):
         if docs is None:
             return None
