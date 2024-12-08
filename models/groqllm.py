@@ -21,7 +21,7 @@ class GroqModel(LargeLanguageModel):
                     "role": "user",
                     "content": 
                         f'''Answer the following question based on the context. 
-                            Add the context ID used as a reference to the information that helped to answer the underlying question.
+                            Always and always (really important) add the context ID used as a reference to the information that helped to answer the underlying question.
                             Act normal as a search engine. Do not mention about context when you answer. 
                             If you can't answer, answer by the following template: "Unfortunately, no answer could be found for this prompt"
                             ## Question
