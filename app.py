@@ -6,9 +6,12 @@ import os
 
 from chat import Chat
 from models.chunker import DefaultChunker
+from models.combined_retriever import CombinedRetriever
 from models.groqllm import GroqModel
+from models.keyword_retriever import KeywordRetriever
 from models.semantic_retriever import SemanticRetriever
 from models.document import Document
+from models.retriever import Retriever
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -38,10 +41,14 @@ def get_docs():
 
 def chat_config() -> dict:
     docs = get_docs()
+    retriever_mode = os.environ.get("RETRIEVER_MODE")
+
     config = {
-        "retriever": SemanticRetriever(docs=docs, 
-                                       logger=logger,
-                                       precalc=True), 
+        "retriever": CombinedRetriever(docs,
+                                       SemanticRetriever(docs=docs,
+                                                         logger=logger,
+                                                         precalc=True) if (retriever_mode == "combined") or (retriever_mode == "semantic") else None,
+                                       KeywordRetriever(logger=logger, docs=docs) if (retriever_mode == "combined") or (retriever_mode == "keyword") else None),
         "llm": GroqModel(),
         "docs": docs,
         "chunker": DefaultChunker(logger=logger, 
@@ -71,3 +78,9 @@ if prompt := st.chat_input("What is up?"):
     with st.chat_message("assistant"):
         response = st.write_stream(response_generator(prompt, st.session_state['chat']))
     st.session_state.messages.append({"role": "assistant", "content": response})
+
+# Add active retriever mode below the search bar
+if retriever_mode := os.environ.get("RETRIEVER_MODE"):
+    st.markdown(f"**Retriever Mode:** {retriever_mode.capitalize()}")
+else:
+    st.markdown("**Retriever Mode:** Not Set")
