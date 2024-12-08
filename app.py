@@ -12,7 +12,6 @@ from models.keyword_retriever import KeywordRetriever
 from models.reranker import CrossEncoderReranker
 from models.semantic_retriever import SemanticRetriever
 from models.document import Document
-from models.retriever import Retriever
 from dotenv import load_dotenv
 
 load_dotenv()

@@ -32,7 +32,7 @@ class CrossEncoderReranker:
         sorted_indices = np.argsort(-scores)
 
         top_indices = sorted_indices[:n_docs]
-        
+        self.logger.info(f"[CrossEncoderReranker.rerank] - reranked to {n_docs} documents")
         return [docs[idx] for idx in top_indices]
         
         
