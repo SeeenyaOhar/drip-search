@@ -63,6 +63,12 @@ if 'chat' not in st.session_state:
     st.session_state['chat'] = Chat(**chat_config())
 st.title("Drip Chat")
 
+# Add active retriever mode below the search bar
+if retriever_mode := os.environ.get("RETRIEVER_MODE"):
+    st.markdown(f"**Retriever Mode:** {retriever_mode.capitalize()}")
+else:
+    st.markdown("**Retriever Mode:** Not Set")
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -78,9 +84,3 @@ if prompt := st.chat_input("What is up?"):
     with st.chat_message("assistant"):
         response = st.write_stream(response_generator(prompt, st.session_state['chat']))
     st.session_state.messages.append({"role": "assistant", "content": response})
-
-# Add active retriever mode below the search bar
-if retriever_mode := os.environ.get("RETRIEVER_MODE"):
-    st.markdown(f"**Retriever Mode:** {retriever_mode.capitalize()}")
-else:
-    st.markdown("**Retriever Mode:** Not Set")
