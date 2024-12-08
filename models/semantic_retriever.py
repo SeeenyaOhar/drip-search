@@ -55,7 +55,7 @@ class SemanticRetriever(Retriever):
         return [self.__docs[idx] for idx in top_indices]
     
     def __compute_hash(self, docs):
-        doc_texts = [doc.content for doc in docs]
+        doc_texts = [f"{doc.content}-{doc.id}" for doc in docs]
         hash_input = "".join(doc_texts).encode("utf-8")
         return hashlib.sha256(hash_input).hexdigest()
 
